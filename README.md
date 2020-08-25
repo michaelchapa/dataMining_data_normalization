@@ -1,11 +1,11 @@
+# dataMining_data_normalization
 <h4>Develop a program for the pre-processing data.</h4>
 <ol>
-  <li>Read data from the provided CSV file into a DataFrame<li>
+  <li>Read data from the provided CSV file into a DataFrame</li>
   <li>Data-file has 6 columns: A, B, C, D, E, F</li>
   <li>A & B are categorical and the rest are numeric</li>
 </ol>
 
-# dataMining_data_normalization
 <h2>Data Statistics</h2>
 <h3>Write functions to calculate columns C, D, E, F</h3>
 <ol>
