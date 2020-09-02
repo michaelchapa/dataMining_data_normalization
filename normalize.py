@@ -1,36 +1,32 @@
 import pandas as pd
 import numpy as np
 from scipy.spatial import distance
+from sklearn import preprocessing
 
 def getMean(data):
     rows, _ = data.shape
     data = data[data.columns[3:]].sum(axis = 0)
     data = data / rows
+    
     print(data)
+
 
 def getMidRange(data):
     rows, _ = data.shape
     midranges = []
+    attributes = list(data.columns[3:])
     
-    data.sort_values(by='C', inplace = True)
-    midranges.append(data.loc[(rows // 2), 'C'])
-    
-    data.sort_values(by='D', inplace = True)
-    midranges.append(data.loc[(rows // 2), 'D'])
-    
-    data.sort_values(by='E', inplace = True)
-    midranges.append(data.loc[(rows // 2), 'E'])
-    
-    data.sort_values(by='F', inplace = True)
-    midranges.append(data.loc[(rows // 2), 'F'])
+    for attribute in attributes:
+        data.sort_values(by = attribute, inplace = True)
+        midranges.append(data.loc[(rows // 2), attribute])
     
     print(midranges)
+
     
 # def getMode(data):
 
+# For each column get Minimum, Maximum, Standard Deviation, Mean and Median
 def getFiveSummary(data):
-    # fiveList = [[i for i in range(5)] for j in range(4)]
-    fiveList = []
     data = data[data.columns[3:]]
     
     print('Minimum:')
@@ -46,44 +42,52 @@ def getFiveSummary(data):
 
 
 # Determine the Distance of each row compared to the user input 'p'
-# Print out the least distant row
+# Prints out the least distant row
 def getDistances(data):
     pValues = input("input 4 values seperated by commas (,):").split(',')
     pValues = [float(i) for i in pValues] # convert String to Float d-type
     print() # for nice formatting :P
+    
     data = data[data.columns[3:]].T # get columns and transpose
     
-    # Calculate and print least Euclidean distance
-    distances = data.apply(\
-        euclideanDistance, result_type = 'reduce', args=(pValues))
-    leastDistantIndex = np.argmin(distances) # returns index of row
-    print("Least Euclidean Distant columns at row " \
-          + str(leastDistantIndex), end='\n')
-    print(data[leastDistantIndex], '\n')
+    instances = [(euclideanDistance, "Euclidean"), 
+                 (manhattanDistance, "Manhattan"), 
+                 (supremumDistance, "Supremum"), 
+                 (cosineDistance, "Cosine")]
     
-    # Calculate and print least Manhattan (cityblock) distance
-    distances = data.apply(\
-        manhattanDistance, result_type = 'reduce', args=(pValues))
-    leastDistantIndex = np.argmin(distances)
-    print("Least Manhattan Distant columns at row " \
-          + str(leastDistantIndex), end='\n')
-    print(data[leastDistantIndex], '\n')
+    # Raw Distances
+    for instance in instances:
+        distances = data.apply(\
+            instance[0], result_type = 'reduce', args = (pValues))
+        leastDistantIndex = np.argmin(distances) # returns index of row
+        print("Least", instance[1], "Distant columns at row " \
+              , str(leastDistantIndex))
+        print(data[leastDistantIndex], '\n')
     
-    # Calculate and print least Supremum distance
-    distances = data.apply(\
-        supremumDistance, result_type = 'reduce', args=(pValues))
-    leastDistantIndex = np.argmin(distances)
-    print("Least Supremum Distant columns at row " \
-          + str(leastDistantIndex), end='\n')
-    print(data[leastDistantIndex], '\n')
+    # Normalize data and p-values
+    data = data.T
+    x = data.values # creates numpy array
     
-    # Calculate and print least Cosine distance
-    distances = data.apply(\
-        cosineDistance, result_type = 'reduce', args=(pValues))
-    leastDistantIndex = np.argmin(distances)
-    print("Least Cosine Distant columns at row " \
-          + str(leastDistantIndex), end='\n')
-    print(data[leastDistantIndex], '\n')
+    xScaled = preprocessing.normalize(x, norm= 'l1')
+    pScaled = preprocessing.normalize([pValues], norm= 'l1')
+    
+    data = pd.DataFrame(xScaled, columns = ['C', 'D', 'E', 'F'])
+    data = data.T
+    
+    pScaled = pScaled.flatten()
+    pScaled = pScaled.tolist()
+    
+    # Normalized Distances
+    print('\n\n' + ('*' * 16) + ' Normalized ' + ('*' * 8))
+    print('input scaled: \n' + str(pScaled) + '\n')
+    for instance in instances:
+        distances = data.apply(\
+            instance[0], result_type = 'reduce', args = (pScaled))
+        leastDistantIndex = np.argmin(distances)
+        print("Normalized Least", instance[1], "Distant columns at row " \
+              , str(leastDistantIndex))
+        print(data[leastDistantIndex], '\n')
+
     
 def euclideanDistance(dataValues, c, d, e, f):
     return distance.euclidean(dataValues, [c, d, e, f])
@@ -99,10 +103,25 @@ def supremumDistance(dataValues, c, d, e, f):
 def cosineDistance(dataValues, c, d, e, f):
     return distance.cosine(dataValues, [c, d, e, f])
 
+
+
+# Scales the DataFrame into Real Numbers between 0 and 1.
+# Input: DataFrame rows consisting of Numeric Attributes. 
+# Output: Numeric feature, all instances normalized within [-1, 1] range.
+def normalizeMinMax(data):
+    data = data[data.columns[3:]]
+    x = data.values # returns numpy array
+    scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1))
+    xScaled = scaler.fit_transform(x) # returns DataFrame
+    data = pd.DataFrame(xScaled)
+    print(data[0])
+
+    
 ################################### MAIN ####################################    
 data = pd.read_csv('https://raw.githubusercontent.com/michaelchapa/' \
                    'dataMining_data_normalization/master/hwk01.csv')
-#getMean(data)
-#getMidRange(data)
-#getFiveSummary(data)
-#getDistances(data)
+# getMean(data)
+# getMidRange(data)
+# getFiveSummary(data)
+getDistances(data)
+# normalizeMinMax(data)
