@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.spatial import distance
 from sklearn import preprocessing
+import matplotlib.pyplot as plt
 
 def getMean(data):
     rows, _ = data.shape
@@ -46,7 +47,26 @@ def getFiveSummary(data):
     print(data.apply(np.mean, axis = 0, raw = True), end='\n\n')
     print('Median:')
     print(data.apply(np.median, axis = 0, raw = True), end='\n\n')
-
+    
+def getCentralTendencySummary(data):
+    numericAttributes = data[data.columns[3:]]
+    
+    print(numericAttributes.mode())
+    print(numericAttributes.min())
+    print(numericAttributes.max())
+    print(numericAttributes.std())
+    print(numericAttributes.mean())
+    print(numericAttributes.median())
+    
+    print(numericAttributes.describe())
+    
+    # Normalized boxplot of the data. Mean zero.
+    x = numericAttributes.values # returns numpy array
+    scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1))
+    xScaled = scaler.fit_transform(x) # returns DataFrame
+    numericAttributes = pd.DataFrame(xScaled)
+    numericAttributes.boxplot()
+    
 
 # Determine the Distance of each row compared to the user input 'p'
 # Prints out the least distant row
@@ -111,7 +131,6 @@ def cosineDistance(dataValues, c, d, e, f):
     return distance.cosine(dataValues, [c, d, e, f])
 
 
-
 # Scales the DataFrame into Real Numbers between 0 and 1.
 # Input: DataFrame rows consisting of Numeric Attributes. 
 # Output: Numeric feature, all instances normalized within [-1, 1] range.
@@ -123,6 +142,8 @@ def normalizeMinMax(data):
     data = pd.DataFrame(xScaled)
     print(data[0])
 
+
+# Alternative is sklearn.preprocessing.scale()
 def normalizeZScore(data):
     data = data[data.columns[3:]]
     powerTransformer = preprocessing.PowerTransformer(method = 'yeo-johnson')
@@ -131,13 +152,23 @@ def normalizeZScore(data):
     print(data[0])
     
     
+def normalizeDecimalScale(data):
+    data = data[data.columns[3:]]
+    scaler = preprocessing.StandardScaler()
+    data = scaler.fit_transform(data.values)
+    data = pd.DataFrame(data)
+    print(data[0])
+    
+    
 ################################### MAIN ####################################    
 data = pd.read_csv('https://raw.githubusercontent.com/michaelchapa/' \
                    'dataMining_data_normalization/master/hwk01.csv')
-# getMean(data)
-# getMidRange(data)
-# getMode(data)
-# getFiveSummary(data)
-# getDistances(data)
-normalizeMinMax(data)
-normalizeZScore(data)
+#getMean(data)
+#getMidRange(data)
+#getMode(data)
+#getFiveSummary(data)
+getCentralTendencySummary(data)
+#getDistances(data)
+#normalizeMinMax(data)
+#normalizeZScore(data)
+#normalizeDecimalScale(data)
