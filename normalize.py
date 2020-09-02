@@ -23,7 +23,14 @@ def getMidRange(data):
     print(midranges)
 
     
-# def getMode(data):
+def getMode(data):
+    for attribute in ['C', 'D', 'E', 'F']:
+        print(data[attribute].value_counts(), '\n')
+        
+    print("Attribute C is Bimodal")
+    print("Attributes D and E have no Mode")
+    print("Attribute F is Unimodal")
+        
 
 # For each column get Minimum, Maximum, Standard Deviation, Mean and Median
 def getFiveSummary(data):
@@ -116,12 +123,21 @@ def normalizeMinMax(data):
     data = pd.DataFrame(xScaled)
     print(data[0])
 
+def normalizeZScore(data):
+    data = data[data.columns[3:]]
+    powerTransformer = preprocessing.PowerTransformer(method = 'yeo-johnson')
+    data = powerTransformer.fit_transform(data.values)
+    data = pd.DataFrame(data)
+    print(data[0])
+    
     
 ################################### MAIN ####################################    
 data = pd.read_csv('https://raw.githubusercontent.com/michaelchapa/' \
                    'dataMining_data_normalization/master/hwk01.csv')
 # getMean(data)
 # getMidRange(data)
+# getMode(data)
 # getFiveSummary(data)
-getDistances(data)
-# normalizeMinMax(data)
+# getDistances(data)
+normalizeMinMax(data)
+normalizeZScore(data)
