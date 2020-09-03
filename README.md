@@ -1,4 +1,5 @@
-# dataMining_data_normalization
+# Measuring Central Tendency, Obtaining Euclidean, Manhattan, Cosine, Supremum distance, Normalizing and Standardizing data. 
+<h1>FULL OUTPUT at: finalOutput.ipynb</h1>
 <h4>Develop a program for the pre-processing data.</h4>
 <ol>
   <li>Read data from the provided CSV file into a DataFrame</li>
